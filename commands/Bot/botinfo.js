@@ -26,22 +26,22 @@ module.exports = {
         .setDescription(
           `
 \`\`\`
-          Configuration :
+🛠️ Configuration :
 
-Nom du Bot :     ${botUser.username}
-ID du Bot :      ${botId}
-Version du Bot : ${botVersion}
-Shard du Bot :   Shard ${
+🤖 Nom du Bot :     ${botUser.username}
+🆔 ID du Bot :      ${botId}
+🛠️ Version du Bot : ${botVersion}
+🔢 Shard du Bot:   Shard ${
             message.client.shard ? message.client.shard.ids[0] + 1 : 1
           } / ${botShard}
           \n\n
-          Utilisation :
+🔍 Utilisation :
 
-Total Membres :  ${totalMembers} membres sur tous les serveurs
-Total Serveurs : ${totalGuilds} serveurs
-Création du Bot : ${botCreationDate}
-Temps d'activité : ${formatUptime(uptime)}
-Créateur : ๖̶ζ͜͡Skykiller | <@1219371934999904388>
+👥 Total Membres :  ${totalMembers} membres sur tous les serveurs
+🌐 Total Serveurs : ${totalGuilds} serveurs
+📅 Création du Bot : ${botCreationDate}
+⏱️ Temps d'activité : ${formatUptime(uptime)}
+👨‍💻 Créateur : ๖̶ζ͜͡Skykiller | <@1219371934999904388>
 \`\`\`
         `
         )
