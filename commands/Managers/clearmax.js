@@ -1,4 +1,4 @@
-const { PermissionFlagsBits } = require("discord.js");
+const { PermissionFlagsBits, EmbedBuilder } = require("discord.js");
 
 module.exports = {
   name: "clearmax",
@@ -26,16 +26,25 @@ module.exports = {
       // Variables pour suivre la suppression et la progression
       let totalDeleted = 0;
       let deletedMessages = [];
-      let progressMessage = await message.channel.send(`
+      let progressMessage = await message.channel.send({
+        embeds: [
+          new EmbedBuilder()
+            .setColor("#FF4500")
+            .setTitle("🧹 CLEARMAX | Démarrage...").setDescription(`
 \`\`\`
-🧹 CLEARMAX | Démarrage...
-
 🔢 Messages à supprimer : En attente...
 ⏳ Progression : 0%
 🛠️ Modérateur : ${message.author.tag}
 📆 Date : ${new Date().toLocaleString()}
 \`\`\`
-            `);
+            `),
+        ],
+      });
+
+      // Suppression après 3 secondes
+      setTimeout(() => {
+        progressMessage.delete();
+      }, 3000);
 
       // Boucle pour récupérer et supprimer les messages
       let messagesFetched;
@@ -58,16 +67,26 @@ module.exports = {
           let progress = Math.round(
             (totalDeleted / (totalDeleted + messagesFetched.size)) * 100
           );
-          await progressMessage.edit(`
+          progressMessage = await message.channel.send({
+            embeds: [
+              new EmbedBuilder()
+                .setColor("#FF4500")
+                .setTitle("🧹 CLEARMAX | Suppression en cours...")
+                .setDescription(`
 \`\`\`
-🧹 CLEARMAX | Suppression en cours...
-
 🔢 Messages supprimés : ${totalDeleted}
 ⏳ Progression : ${progress}% (${totalDeleted}/${messagesFetched.size})
 🛠️ Modérateur : ${message.author.tag}
 📆 Date : ${new Date().toLocaleString()}
 \`\`\`
-                    `);
+                `),
+            ],
+          });
+
+          // Suppression de l'embed après 3 secondes
+          setTimeout(() => {
+            progressMessage.delete();
+          }, 3000);
         }
       } while (
         messagesFetched.size === 100 &&
@@ -77,17 +96,25 @@ module.exports = {
       );
 
       // Mise à jour finale
-      await progressMessage.edit(`
+      progressMessage = await message.channel.send({
+        embeds: [
+          new EmbedBuilder()
+            .setColor("#00FF00")
+            .setTitle("🧹 CLEARMAX | Terminé !").setDescription(`
 \`\`\`
-🧹 CLEARMAX | Terminé !
-
 🔢 Nombre total de messages supprimés : ${totalDeleted}
 🛠️ Action effectuée par : ${message.author.tag}
 📆 Date : ${new Date().toLocaleString()}
-
 ✅ Tous les messages jusqu'à 14 jours ont été supprimés avec succès !
 \`\`\`
-            `);
+            `),
+        ],
+      });
+
+      // Suppression de l'embed final après 3 secondes
+      setTimeout(() => {
+        progressMessage.delete();
+      }, 3000);
     } catch (error) {
       console.error(error);
       message.reply(

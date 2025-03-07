@@ -28,7 +28,7 @@ module.exports = {
       }
 
       // Récupération des membres en timeout
-      const members = await message.guild.members.fetch();
+      const members = await message.guild.members.fetch({ cache: true });
       const mutedMembers = members.filter(
         (member) => member.communicationDisabledUntilTimestamp
       );
@@ -56,13 +56,14 @@ module.exports = {
       // Retirer le timeout de tous les utilisateurs avec mise à jour en temps réel
       let unmutedCount = 0;
       for (const member of mutedMembers.values()) {
-        await member.timeout(null).catch(() => null);
-        unmutedCount++;
+        try {
+          await member.timeout(null); // Retirer le timeout
+          unmutedCount++;
 
-        // Mise à jour du message toutes les 5 démutages ou à la fin
-        if (unmutedCount % 5 === 0 || unmutedCount === mutedMembers.size) {
-          let progress = Math.round((unmutedCount / mutedMembers.size) * 100);
-          await progressMessage.edit(`
+          // Mise à jour du message toutes les 5 démutages ou à la fin
+          if (unmutedCount % 5 === 0 || unmutedCount === mutedMembers.size) {
+            let progress = Math.round((unmutedCount / mutedMembers.size) * 100);
+            await progressMessage.edit(`
 \`\`\`
 🔊 UNMUTE ALL | En cours...
 
@@ -73,7 +74,12 @@ module.exports = {
 
 ⏳ Merci de patienter...
 \`\`\`
-                    `);
+                        `);
+          }
+        } catch (error) {
+          console.error(
+            `Erreur lors du démutage de ${member.user.tag}: ${error.message}`
+          );
         }
       }
 

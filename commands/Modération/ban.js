@@ -1,9 +1,9 @@
-const { PermissionFlagsBits } = require("discord.js");
+const { PermissionFlagsBits, EmbedBuilder } = require("discord.js");
 
 module.exports = {
   name: "ban",
   description: "🚨 Bannit un utilisateur du serveur.",
-  usage: "<@utilisateur> [raison]",
+  usage: "<@utilisateur / ID de l'utilisateur> [raison]",
   permissions: PermissionFlagsBits.BanMembers,
   async execute(message, args) {
     try {
@@ -23,10 +23,11 @@ module.exports = {
         );
       }
 
-      // Récupération du membre à bannir
+      // Vérification de l'utilisateur à bannir (mention ou ID)
       const target =
         message.mentions.members.first() ||
         (await message.guild.members.fetch(args[0]).catch(() => null));
+
       if (!target) {
         return message.reply(
           "❌ Utilisateur introuvable. Mentionnez un membre ou donnez son ID."
@@ -62,11 +63,13 @@ module.exports = {
       // Bannissement
       await target.ban({ reason });
 
-      // Message ultra stylé
-      const banMessage = `
+      // Création de l'embed avec les informations de bannissement
+      const banEmbed = new EmbedBuilder()
+        .setColor("#FF0000")
+        .setTitle("🔨 Bannissement effectué")
+        .setDescription(
+          `
 \`\`\`
-🔨 BAN | Expulsion définitive
-
 👤 Utilisateur :    ${target.user.tag} (ID: ${target.id})
 📜 Raison :        ${reason}
 🛠️ Modérateur :   ${message.author.tag}
@@ -74,8 +77,13 @@ module.exports = {
 
 🚷 ${target.user.tag} a été banni avec succès !
 \`\`\`
-            `;
-      message.channel.send(banMessage);
+        `
+        )
+        .setFooter({ text: "Commande exécutée avec succès" })
+        .setTimestamp();
+
+      // Envoi de l'embed dans le canal
+      message.channel.send({ embeds: [banEmbed] });
     } catch (error) {
       console.error(error);
       message.reply(

@@ -1,9 +1,9 @@
-const { PermissionFlagsBits } = require("discord.js");
+const { PermissionFlagsBits, EmbedBuilder } = require("discord.js");
 
 module.exports = {
   name: "unmute",
   description: "🔊 Retire le timeout d'un utilisateur.",
-  usage: "<@utilisateur>",
+  usage: "<@utilisateur / ID de l'utilisateur>",
   permissions: PermissionFlagsBits.ModerateMembers,
   async execute(message, args) {
     try {
@@ -25,10 +25,11 @@ module.exports = {
         );
       }
 
-      // Vérification du membre à unmute
+      // Vérification du membre à unmute (mention ou ID)
       const target =
         message.mentions.members.first() ||
         (await message.guild.members.fetch(args[0]).catch(() => null));
+
       if (!target) {
         return message.reply(
           "❌ Utilisateur introuvable. Mentionnez un membre ou donnez son ID."
@@ -66,19 +67,26 @@ module.exports = {
       // Retirer le timeout
       await target.timeout(null);
 
-      // Message ultra stylé
-      const unmuteMessage = `
+      // Création de l'embed
+      const unmuteEmbed = new EmbedBuilder()
+        .setColor("#00FF00")
+        .setTitle("🔊 UNMUTE | Fin du timeout")
+        .setDescription(
+          `
 \`\`\`
-🔊 UNMUTE | Fin du timeout
-
 👤 Utilisateur :    ${target.user.tag} (ID: ${target.id})
 🛠️ Modérateur :   ${message.author.tag}
 📆 Date :         ${new Date().toLocaleString()}
 
 🎙️ ${target.user.tag} peut à nouveau parler librement !
 \`\`\`
-            `;
-      message.channel.send(unmuteMessage);
+        `
+        )
+        .setFooter({ text: "Commande exécutée avec succès" })
+        .setTimestamp();
+
+      // Envoi de l'embed avec les informations du unmute
+      message.channel.send({ embeds: [unmuteEmbed] });
     } catch (error) {
       console.error(error);
       message.reply(

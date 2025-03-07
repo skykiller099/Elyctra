@@ -1,4 +1,5 @@
-const { PermissionFlagsBits, TimeSpan } = require("discord.js");
+const { PermissionFlagsBits, EmbedBuilder } = require("discord.js");
+const ms = require("ms");
 
 module.exports = {
   name: "mute",
@@ -60,12 +61,12 @@ module.exports = {
 
       // Vérification de la durée
       const duration = args[1];
-      if (!duration || isNaN(TimeSpan.parse(duration))) {
+      if (!duration || isNaN(ms(duration))) {
         return message.reply(
           "❌ Veuillez spécifier une durée valide (ex: `10m`, `1h`, `2d`)."
         );
       }
-      const timeoutMs = TimeSpan.parse(duration);
+      const timeoutMs = ms(duration);
 
       // Raison du mute
       const reason = args.slice(2).join(" ") || "Aucune raison spécifiée.";
@@ -73,21 +74,28 @@ module.exports = {
       // Application du timeout
       await target.timeout(timeoutMs, reason);
 
-      // Message ultra stylé
-      const muteMessage = `
+      // Création de l'embed
+      const muteEmbed = new EmbedBuilder()
+        .setColor("#FF0000")
+        .setTitle("🔇 Timeout appliqué")
+        .setDescription(
+          `
 \`\`\`
-🔇 MUTE | Timeout appliqué
-
-👤 Utilisateur :    ${target.user.tag} (ID: ${target.id})
-⏳ Durée :         ${duration}
-📜 Raison :        ${reason}
-🛠️ Modérateur :   ${message.author.tag}
-📆 Date :         ${new Date().toLocaleString()}
+👤 Utilisateur : ${target.user.tag} (ID: ${target.id})
+⏳ Durée : ${duration}
+📜 Raison : ${reason}
+🛠️ Modérateur : ${message.author.tag}
+📆 Date : ${new Date().toLocaleString()}
 
 🚫 ${target.user.tag} est maintenant en timeout !
 \`\`\`
-            `;
-      message.channel.send(muteMessage);
+        `
+        )
+        .setFooter({ text: "Commande exécutée avec succès" })
+        .setTimestamp();
+
+      // Envoi de l'embed avec les informations du mute
+      message.channel.send({ embeds: [muteEmbed] });
     } catch (error) {
       console.error(error);
       message.reply(

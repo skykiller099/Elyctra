@@ -1,4 +1,4 @@
-const { PermissionFlagsBits } = require("discord.js");
+const { PermissionFlagsBits, EmbedBuilder } = require("discord.js");
 
 module.exports = {
   name: "clear",
@@ -37,21 +37,29 @@ module.exports = {
         return message.reply("❌ Aucun message à supprimer.");
       }
 
-      // Message ultra stylé
-      const clearMessage = `
+      // Création de l'embed
+      const clearEmbed = new EmbedBuilder()
+        .setColor("#FF4500")
+        .setTitle("🧹 CLEAR | Suppression de messages")
+        .setDescription(
+          `
 \`\`\`
-🧹 CLEAR | Suppression de messages
-
 🔢 Nombre de messages supprimés : ${deletedMessages.size}
 🛠️ Action effectuée par : ${message.author.tag}
 📆 Date : ${new Date().toLocaleString()}
 
 ✅ Les messages ont été supprimés avec succès !
 \`\`\`
-            `;
-      message.channel.send(clearMessage).then((msg) => {
-        setTimeout(() => msg.delete(), 5000); // Supprime le message après 5 secondes
-      });
+        `
+        )
+        .setFooter({ text: "Commande exécutée avec succès" })
+        .setTimestamp();
+
+      // Envoi de l'embed avec les informations de suppression
+      const msg = await message.channel.send({ embeds: [clearEmbed] });
+
+      // Suppression automatique du message d'embed après 3 secondes
+      setTimeout(() => msg.delete(), 3000);
     } catch (error) {
       console.error(error);
       message.reply(
